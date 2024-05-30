@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 
 function App() {
   const [length, setLength] = useState(8);
@@ -6,6 +6,7 @@ function App() {
   const [charactersAllowed, setCharactersAllowed] = useState(false);
   const [password, setPassword] = useState("");
 
+  const passwordRef = useRef(null);
 
   const generatePassword = useCallback(() => {
     let pass = ""
@@ -23,6 +24,13 @@ function App() {
 
   }, [length, numbersAllowed, charactersAllowed, setPassword]);
 
+  const copyPasswordToClipboard = useCallback(() => {
+    passwordRef.current?.select();
+    passwordRef.current?.setSelectionRange(0, 999);
+    window.navigator.clipboard.writeText(password);
+
+  }, [password])
+
   useEffect(() => {
     generatePassword();
   }, [length, numbersAllowed, charactersAllowed, generatePassword])
@@ -38,8 +46,13 @@ function App() {
             placeholder='Password'
             className="flex flex-row w-full p-4 text-lg border border-gray-300 rounded-lg"
             readOnly
+            ref={passwordRef}
           />
-          <button type="submit" className="text-white absolute right-0 bottom-0 top-0 bg-blue-700 hover:bg-blue-800 font-medium rounded-tr-lg rounded-br-lg text-lg px-6 py-2 ">copy</button>
+          <button 
+          type="submit" 
+          className="text-white absolute right-0 bottom-0 top-0 bg-blue-700 hover:bg-blue-800 font-medium rounded-tr-lg rounded-br-lg text-lg px-6 py-2"
+          onClick={copyPasswordToClipboard}
+          >copy</button>
         </div>
         <div className="flex flex-row items-center gap-5 justify-center">
           <input
@@ -48,7 +61,7 @@ function App() {
             max={100}
             value={length}
             className="my-7"
-            onChange={(e) => {setLength(e.target.value)}}
+            onChange={(e) => { setLength(e.target.value) }}
           />
           <label className="text-white text-lg">Length: {length}</label>
           <div>
